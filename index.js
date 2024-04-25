@@ -3,15 +3,13 @@ const app = express();
 const cors = require('cors');
 const multer = require('multer');
 const OpenAI = require('openai');
-const openai = new OpenAI({
-    apiKey: "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"
-});
 const dotenv = require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const FormData = require('form-data');
-const axios = require('axios');
 
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
 
 async function transcribe(filePath,res) {
     console.log("filepath:",filePath)
