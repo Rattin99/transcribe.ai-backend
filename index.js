@@ -1,12 +1,19 @@
-const express = require("express");
+import express, { json } from "express";
 const app = express();
-const cors = require('cors');
-const multer = require('multer');
-const OpenAI = require('openai');
+import cors from 'cors';
+import multer, { diskStorage } from 'multer';
+import OpenAI from 'openai';
 const dotenv = require('dotenv').config();
-const fs = require('fs');
-const path = require('path');
+import { createReadStream } from 'fs';
+import { join } from 'path';
+import bodyParser from 'body-parser';
+import { userRoutes } from "./service/AuthService/user/userRoute";
 
+app.use(express.json());
+app.use(cors());
+//parser
+app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
@@ -15,7 +22,7 @@ async function transcribe(filePath,res) {
     console.log("filepath:",filePath)
 
     const transcription = await openai.audio.transcriptions.create({
-        file: fs.createReadStream(filePath),
+        file: createReadStream(filePath),
         model: "whisper-1",
         response_format: "text",
     });
@@ -28,9 +35,9 @@ app.use(cors({
    origin: 'http://localhost:3000'
 }))
 
-app.use(express.json());
+app.use(json());
 
-const storage = multer.diskStorage({
+const storage = diskStorage({
     destination: function (req, file, cb) {
         cb(null, './uploads/')
     },
@@ -42,7 +49,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-
+//route
+app.use('/api/v1/user',userRoutes)
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
@@ -50,7 +58,7 @@ app.get("/", (req, res) => {
 
 app.post("/upload", upload.single('file'), async (req, res) => {
     
-    const filePath = path.join(__dirname, 'uploads', req.file.originalname);
+    const filePath = join(__dirname, 'uploads', req.file.originalname);
 
     transcribe(filePath,res);
   

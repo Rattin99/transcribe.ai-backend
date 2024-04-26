@@ -1,0 +1,12 @@
+-- Active: 1714052138312@@127.0.0.1@3306@transcribe_ai
+
+
+CREATE TABLE user(
+    id VARCHAR(100) DEFAULT REPLACE (UUID(), '-', '') PRIMARY KEY,
+    uid INT AUTO_INCREMENT UNIQUE,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    phone INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
