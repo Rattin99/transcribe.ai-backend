@@ -92,6 +92,8 @@ app.post("/notes", async (req,res) => {
         model: "gpt-3.5-turbo",
     })
 
+    
+
     res.status(200).json(completion)
 })
 
