@@ -21,8 +21,7 @@ const openai = new OpenAI({
 });
 
 async function transcribe(filePath,res) {
-    console.log("filepath:",filePath)
-        const transcribeData=[]
+    const transcribeData=[]
     const transcription = await openai.audio.transcriptions.create({
         file: createReadStream(filePath),
         model: "whisper-1",
@@ -65,6 +64,40 @@ app.post("/upload", upload.single('file'), async (req, res) => {
     const filePath = join(__dirname, 'uploads', req.file.originalname);
 
     transcribe(filePath,res);
+
+})
+
+app.post("/summary", async (req,res) => {
+    const transcription = req.body.text;
+
+    
+    const completion = await openai.chat.completions.create({
+        messages: [
+            {"role":"user", "content":` the following is part of a meeting transcription. summarize the meeting in timeline sections and bullet points:
+            ${transcription}
+            `}
+        ],
+        model: "gpt-3.5-turbo",
+    })
+
+    res.status(200).json(completion)
+})
+
+app.post("/notes", async (req,res) => {
+    const transcription = req.body.text;
+
+    
+    const completion = await openai.chat.completions.create({
+        messages: [
+            {"role":"user", "content":` the following is part of a meeting transcription. 
+            write key takeways and observations in bullet points:
+            ${transcription}
+            `}
+        ],
+        model: "gpt-3.5-turbo",
+    })
+
+    res.status(200).json(completion)
 })
 
 app.listen(5000, () => {
