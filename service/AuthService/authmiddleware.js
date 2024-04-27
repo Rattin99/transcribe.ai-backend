@@ -1,6 +1,7 @@
 import httpStatus from "http-status";
 import pool from "../../config/db";
 import jwt from 'jsonwebtoken';
+const dotEnv=require('dotenv').config();
 const getUserById = async userid => {
     try {
       const [rows] = await pool.execute('SELECT * FROM user WHERE id = ?', [
@@ -14,7 +15,7 @@ const getUserById = async userid => {
   };
 const authenticateToken = async (req, res, next) => {
     const token = req.header('Authorization');
-  
+
     if (!token) {
       return res.status(httpStatus.UNAUTHORIZED).json({
         success: false,
@@ -23,14 +24,11 @@ const authenticateToken = async (req, res, next) => {
         message: 'Please log in',
       });
     }
-
-  
     try {
       // Verify the JWT token
-      const decoded = jwt.verify(token, process.secret);
+      const decoded = jwt.verify(token, process.env.secret);
       // Check if the user exists in your database using the decoded token information
       const user = await getUserById(decoded.userId); // Replace with your actual function to fetch the user by ID
-  
       if (!user) {
         return res.status(httpStatus.UNAUTHORIZED).json({
           success: false,
@@ -39,13 +37,11 @@ const authenticateToken = async (req, res, next) => {
           message: 'User not found',
         });
       }
-  
       // Attach the user information to the request object
       req.user = user;
       req.token = token;
       next();
     } catch (err) {
-      console.log(err);
       if (err.name === 'JsonWebTokenError') {
         return res.status(403).json({ error: 'Token is invalid' });
       } else if (err.name === 'TokenExpiredError') {

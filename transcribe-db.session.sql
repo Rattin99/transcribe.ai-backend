@@ -1,4 +1,4 @@
--- Active: 1714052138312@@127.0.0.1@3306@transcribe_ai
+-- Active: 1714052138312@@127.0.0.1@3306
 
 
 CREATE TABLE user(
@@ -9,4 +9,47 @@ CREATE TABLE user(
     password VARCHAR(100) NOT NULL,
     phone INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
+
+CREATE TABLE transcribe_data(
+    id VARCHAR(100) PRIMARY KEY,
+    uid int AUTO_INCREMENT UNIQUE,
+    transcribe TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    meeting_id VARCHAR(100),
+    Foreign Key (meeting_id) REFERENCES user_meetings(id) ON UPDATE CASCADE ON DELETE SET NULL
+)
+
+ALTER TABLE transcribe_data 
+ADD COLUMN createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+
+CREATE TABLE notes_data(
+    id VARCHAR(100) PRIMARY KEY,
+    uid int AUTO_INCREMENT UNIQUE,
+    notes TEXT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    meeting_id VARCHAR(100),
+    Foreign Key (meeting_id) REFERENCES user_meetings(id) ON UPDATE CASCADE ON DELETE SET NULL
+)
+
+ALTER TABLE notes_data
+ADD COLUMN createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+CREATE TABLE summary_data(
+    id VARCHAR(100) PRIMARY KEY,
+    uid int AUTO_INCREMENT UNIQUE,
+    summary TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    meeting_id VARCHAR(100),
+    Foreign Key (meeting_id) REFERENCES user_meetings(id) ON UPDATE CASCADE ON DELETE SET NULL
+)
+
+CREATE TABLE user_meetings (
+    id VARCHAR(100) DEFAULT REPLACE (UUID(), '-', '') PRIMARY KEY,
+    uid int AUTO_INCREMENT UNIQUE,
+    meeting_name text NOT NULL,
+     meeting_id VARCHAR(100),
+    Foreign Key (user_id) REFERENCES user(id) ON UPDATE CASCADE ON DELETE SET NULL
 )

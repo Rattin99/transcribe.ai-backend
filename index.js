@@ -8,6 +8,8 @@ import { createReadStream } from 'fs';
 import { join } from 'path';
 import bodyParser from 'body-parser';
 import { userRoutes } from "./service/AuthService/user/userRoute";
+import { transcribeRoutes } from "./service/transcribe/transcribeRoute";
+import { transcribeController } from "./service/transcribe/transcribeController";
 
 app.use(express.json());
 app.use(cors());
@@ -20,15 +22,17 @@ const openai = new OpenAI({
 
 async function transcribe(filePath,res) {
     console.log("filepath:",filePath)
-
+        const transcribeData=[]
     const transcription = await openai.audio.transcriptions.create({
         file: createReadStream(filePath),
         model: "whisper-1",
         response_format: "text",
     });
-    
+        transcribeData.push(transcription);
+        if (transcribeData.length > 0) {
+         await transcribeController.userMeetingInsertController(transcribeData)
+        }
     res.status(200).json({text: transcription})
-    
 }
 
 app.use(cors({
@@ -51,7 +55,7 @@ const upload = multer({ storage: storage });
 
 //route
 app.use('/api/v1/user',userRoutes)
-
+app.use('/api/v1/transcribe',transcribeRoutes)
 app.get("/", (req, res) => {
     res.send("Hello World!");
 })
@@ -61,9 +65,6 @@ app.post("/upload", upload.single('file'), async (req, res) => {
     const filePath = join(__dirname, 'uploads', req.file.originalname);
 
     transcribe(filePath,res);
-  
-
-
 })
 
 app.listen(5000, () => {

@@ -58,6 +58,7 @@ const createUser = async (req, res) => {
       // Parse the expiresIn value to convert it to milliseconds
       const expiresIn = parseInt(process.env.expiresIn) * 24 * 3600;
       // Generate a JWT token with an expiration time
+      console.log(process.env.secret)
       const token = jwt.sign({ userId: user.id }, process.env.secret, {
         expiresIn,
       });
