@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import pool from '../../../config/db';
+import { generateUUID } from '../../../utils/generateUUID';
 const createUser = async (firstName,lastName,email, password, phone) => {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -14,10 +15,10 @@ const createUser = async (firstName,lastName,email, password, phone) => {
           message: 'Phone number already registered',
         };
       }
-      const values=[firstName,lastName,email, hashedPassword, phone]
-      console.log(values)
+      const id=generateUUID()
+      const values=[id,firstName,lastName,email, hashedPassword, phone]
       const [results] = await pool.execute(
-        `INSERT INTO user (first_name,last_name, email, password, phone) VALUES (?,?,?,?,?)`,
+        `INSERT INTO user (id,first_name,last_name, email, password, phone) VALUES (?,?,?,?,?)`,
         values
       );
 

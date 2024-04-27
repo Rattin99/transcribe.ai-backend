@@ -13,6 +13,20 @@
             "database": "transcribe_ai",
             "username": "root",
             "password": ""
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "sql6.freesqldatabase.com",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "live-db",
+            "database": "sql6702423",
+            "username": "sql6702423",
+            "password": "VQyiBeRKKj"
         }
     ]
 }

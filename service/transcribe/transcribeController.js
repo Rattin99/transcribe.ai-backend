@@ -20,9 +20,10 @@ const userMeetingInsertController = async (req, res) => {
 };
 const transcribeDataInsertController = async (req, res) => {
   try {
+    const id=req.params.id;
     const transcribeData = req.body.transcribeData;
     const result = await transcribeService.insertTranscribe(
-      req,
+      id,
       transcribeData
     );
     res.status(httpStatus.OK).json({

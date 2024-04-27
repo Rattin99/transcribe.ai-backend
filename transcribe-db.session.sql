@@ -1,8 +1,8 @@
--- Active: 1714052138312@@127.0.0.1@3306
+-- Active: 1714238604527@@sql6.freesqldatabase.com@3306@sql6702423
 
 
 CREATE TABLE user(
-    id VARCHAR(100) DEFAULT REPLACE (UUID(), '-', '') PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY NOT NULL,
     uid INT AUTO_INCREMENT UNIQUE,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
@@ -47,9 +47,9 @@ CREATE TABLE summary_data(
 )
 
 CREATE TABLE user_meetings (
-    id VARCHAR(100) DEFAULT REPLACE (UUID(), '-', '') PRIMARY KEY,
+    id VARCHAR(100)  PRIMARY KEY,
     uid int AUTO_INCREMENT UNIQUE,
     meeting_name text NOT NULL,
-     meeting_id VARCHAR(100),
+    user_id VARCHAR(100),
     Foreign Key (user_id) REFERENCES user(id) ON UPDATE CASCADE ON DELETE SET NULL
 )

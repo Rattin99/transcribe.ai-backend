@@ -16,21 +16,19 @@ app.use(cors());
 //parser
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
 async function transcribe(filePath,res) {
-    const transcribeData=[]
+    
     const transcription = await openai.audio.transcriptions.create({
         file: createReadStream(filePath),
         model: "whisper-1",
         response_format: "text",
     });
-        transcribeData.push(transcription);
-        if (transcribeData.length > 0) {
-         await transcribeController.userMeetingInsertController(transcribeData)
-        }
+        
     res.status(200).json({text: transcription})
 }
 
