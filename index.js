@@ -9,8 +9,8 @@ import { join } from 'path';
 import bodyParser from 'body-parser';
 import { userRoutes } from "./service/AuthService/user/userRoute";
 import { transcribeRoutes } from "./service/transcribe/transcribeRoute";
-import { transcribeController } from "./service/transcribe/transcribeController";
-
+import { transcribeService } from "./service/transcribe/transCribeService";
+import authenticateToken from "./service/AuthService/authmiddleware";
 app.use(express.json());
 app.use(cors());
 //parser
@@ -18,19 +18,50 @@ app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
+    apiKey: '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'
 });
 
-async function transcribe(filePath,res) {
-    
-    const transcription = await openai.audio.transcriptions.create({
-        file: createReadStream(filePath),
-        model: "whisper-1",
-        response_format: "text",
-    });
-        
-    res.status(200).json({text: transcription})
+// async function transcribe(req,filePath,res) {
+//     const transcription = await openai.audio.transcriptions.create({
+//         file: createReadStream(filePath),
+//         model: "whisper-1",
+//         response_format: "text",
+//     });
+//     const meetingId = await transcribeService.insertMeetings(req);
+//      // Insert transcription data using the meeting ID
+//      await transcribeService.insertTranscribe(meetingId, transcription);
+//     res.status(200).json({text: transcription})
+// }
+
+async function transcribe(req, filePath, res) {
+    try {
+        let meetingId = req.query.meetingId; // Get meeting ID from query parameter
+
+        if (!meetingId) {
+            // If meeting ID is not provided, create a new meeting
+            meetingId = await transcribeService.insertMeetings(req);
+        }
+
+        // Perform transcription
+        const transcription = await openai.audio.transcriptions.create({
+            file: createReadStream(filePath),
+            model: "whisper-1",
+            response_format: "text",
+        });
+
+        // Insert transcription data using the meeting ID
+        await transcribeService.insertTranscribe(meetingId, transcription);
+
+        // Send response
+        res.status(200).json({ 
+            text: transcription.text 
+        });
+    } catch (error) {
+        console.error("Error during transcription:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
 }
+
 
 app.use(cors({
    origin: 'http://localhost:3000'
@@ -57,34 +88,48 @@ app.get("/", (req, res) => {
     res.send("Hello World!");
 })
 
-app.post("/upload", upload.single('file'), async (req, res) => {
+app.post("/upload", authenticateToken,upload.single('file'), async (req, res) => {
     
     const filePath = join(__dirname, 'uploads', req.file.originalname);
 
-    transcribe(filePath,res);
+    transcribe(req,filePath,res);
 
 })
 
 app.post("/summary", async (req,res) => {
     const transcription = req.body.text;
 
-    
+    let meetingId = req.query.meetingId; // Get meeting ID from query parameter
+
+    if (!meetingId) {
+        return 'Please provide a meeting ID'
+    }
     const completion = await openai.chat.completions.create({
         messages: [
             {"role":"user", "content":` the following is part of a meeting transcription. summarize the meeting in timeline sections and bullet points:
             ${transcription}
             `}
         ],
+        max_tokens: 150,
+        temperature: 0.3, // Control the creativity of the response
+        top_p: 1, // Control the diversity of the response
+        frequency_penalty: 0.5, // Adjust the likelihood of repetitive phrases
+        presence_penalty: 0.5 ,
         model: "gpt-3.5-turbo",
     })
-
-    res.status(200).json(completion)
+    const mainSummary = completion.choices[0].message.content
+    //await transcribeService.insertSummary(meetingId, mainSummary);
+    res.status(200).json(mainSummary)
 })
 
 app.post("/notes", async (req,res) => {
     const transcription = req.body.text;
 
-    
+    let meetingId = req.query.meetingId; // Get meeting ID from query parameter
+
+    if (!meetingId) {
+        return 'Please provide a meeting ID'
+    }
     const completion = await openai.chat.completions.create({
         messages: [
             {"role":"user", "content":` the following is part of a meeting transcription. 
@@ -94,8 +139,9 @@ app.post("/notes", async (req,res) => {
         ],
         model: "gpt-3.5-turbo",
     })
-
-    res.status(200).json(completion)
+    const mainNotes = completion.choices[0].message.content
+    await transcribeService.insertNotes(meetingId, mainNotes);
+    res.status(200).json(mainNotes)
 })
 
 app.listen(5000, () => {

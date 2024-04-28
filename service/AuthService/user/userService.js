@@ -17,8 +17,9 @@ const createUser = async (firstName,lastName,email, password, phone) => {
       }
       const id=generateUUID()
       const values=[id,firstName,lastName,email, hashedPassword, phone]
+      console.log(values)
       const [results] = await pool.execute(
-        `INSERT INTO user (id,first_name,last_name, email, password, phone) VALUES (?,?,?,?,?)`,
+        `INSERT INTO user (id,first_name,last_name, email, password, phone) VALUES (?,?,?,?,?,?)`,
         values
       );
 
