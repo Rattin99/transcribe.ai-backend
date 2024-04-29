@@ -54,7 +54,9 @@ async function transcribe(req, filePath, res) {
 
         // Send response
         res.status(200).json({ 
-            text: transcription.text 
+            success:true,
+            message: "Successfully created",
+            text: transcription
         });
     } catch (error) {
         console.error("Error during transcription:", error);
@@ -119,7 +121,11 @@ app.post("/summary", async (req,res) => {
     })
     const mainSummary = completion.choices[0].message.content
     //await transcribeService.insertSummary(meetingId, mainSummary);
-    res.status(200).json(mainSummary)
+    res.status(200).json({
+        success: true,
+        message: 'Successfully created',
+        text:mainSummary
+    })
 })
 
 app.post("/notes", async (req,res) => {
@@ -141,7 +147,11 @@ app.post("/notes", async (req,res) => {
     })
     const mainNotes = completion.choices[0].message.content
     await transcribeService.insertNotes(meetingId, mainNotes);
-    res.status(200).json(mainNotes)
+    res.status(200).json({
+        success:true,
+        message: "Successfully created",
+        text:mainNotes
+    })
 })
 
 app.listen(5000, () => {
