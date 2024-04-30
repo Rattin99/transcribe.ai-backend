@@ -11,6 +11,7 @@ import { userRoutes } from "./service/AuthService/user/userRoute";
 import { transcribeRoutes } from "./service/transcribe/transcribeRoute";
 import { transcribeService } from "./service/transcribe/transCribeService";
 import authenticateToken from "./service/AuthService/authmiddleware";
+const S = require('string');
 app.use(express.json());
 app.use(cors());
 //parser
@@ -56,7 +57,8 @@ async function transcribe(req, filePath, res) {
         res.status(200).json({ 
             success:true,
             message: "Successfully created",
-            text: transcription
+            text: transcription,
+            meetingId:meetingId
         });
     } catch (error) {
         console.error("Error during transcription:", error);
@@ -108,7 +110,7 @@ app.post("/summary", async (req,res) => {
     }
     const completion = await openai.chat.completions.create({
         messages: [
-            {"role":"user", "content":` the following is part of a meeting transcription. summarize the meeting in timeline sections and bullet points:
+            {"role":"user", "content":` the following is part of a audio transcription. summarize the transciption text into bullet points. No heading needed give me only the bullet points.put a line break after every bullet point:
             ${transcription}
             `}
         ],
@@ -119,12 +121,13 @@ app.post("/summary", async (req,res) => {
         presence_penalty: 0.5 ,
         model: "gpt-3.5-turbo",
     })
-    const mainSummary = completion.choices[0].message.content
+    const mainSummary = completion.choices[0].message.content;
+    const arr = S(mainSummary).lines()
     //await transcribeService.insertSummary(meetingId, mainSummary);
     res.status(200).json({
         success: true,
         message: 'Successfully created',
-        text:mainSummary
+        summaryData: arr
     })
 })
 
@@ -139,18 +142,19 @@ app.post("/notes", async (req,res) => {
     const completion = await openai.chat.completions.create({
         messages: [
             {"role":"user", "content":` the following is part of a meeting transcription. 
-            write key takeways and observations in bullet points:
+            write key takeaways and observations in sections with headers and bullet points. each header must end with a : and separate each line with a line break:
             ${transcription}
             `}
         ],
         model: "gpt-3.5-turbo",
     })
     const mainNotes = completion.choices[0].message.content
-    await transcribeService.insertNotes(meetingId, mainNotes);
+    // await transcribeService.insertNotes(meetingId, mainNotes);
+    const arr = S(mainNotes).lines()
     res.status(200).json({
         success:true,
         message: "Successfully created",
-        text:mainNotes
+        notesData: arr
     })
 })
 
