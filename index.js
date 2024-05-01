@@ -9,8 +9,8 @@ import { join } from 'path';
 import bodyParser from 'body-parser';
 import { userRoutes } from "./service/AuthService/user/userRoute";
 import { transcribeRoutes } from "./service/transcribe/transcribeRoute";
-import { transcribeService } from "./service/transcribe/transCribeService";
 import authenticateToken from "./service/AuthService/authmiddleware";
+import moment from "moment/moment";
 const S = require('string');
 app.use(express.json());
 app.use(cors());
@@ -58,7 +58,8 @@ async function transcribe(req, filePath, res) {
             success:true,
             message: "Successfully created",
             text: transcription,
-            meetingId:meetingId
+            meetingId:meetingId,
+            created_at:moment().format('YYYY-MM-DD HH:mm')
         });
     } catch (error) {
         console.error("Error during transcription:", error);
