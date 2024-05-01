@@ -52,8 +52,29 @@ const updateUserMeetingController = async (req, res) => {
     });
   }
 };
+const deleteMeetingController = async (req, res) => {
+  try {
+    const meetingId = req.params.id;
+    const userId = req.user.id;
+
+    // Call the function to delete the meeting and its related data
+    const result = await transcribeService.deleteMeetingAndRelatedData(meetingId, userId);
+
+    res.status(httpStatus.OK).json({
+      success: true,
+      message: "Meeting and related data deleted successfully.",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
 export const transcribeController = {
   getAllData,
   getSingleDataController,
-  updateUserMeetingController
+  updateUserMeetingController,
+  deleteMeetingController
 };

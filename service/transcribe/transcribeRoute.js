@@ -6,5 +6,5 @@ const router = express.Router();
 router.get('/get-all-data',authenticateToken,transcribeController.getAllData)
 router.get('/get-single-data/:id',authenticateToken,transcribeController.getSingleDataController)
 router.put('/update-meeting-name/:id',authenticateToken,transcribeController.updateUserMeetingController)
-
+router.delete('/delete-meeting/:id',authenticateToken,transcribeController.deleteMeetingController)
 export const transcribeRoutes = router;

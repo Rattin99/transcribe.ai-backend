@@ -34,8 +34,6 @@ CREATE TABLE notes_data(
     Foreign Key (meeting_id) REFERENCES user_meetings(id) ON UPDATE CASCADE ON DELETE SET NULL
 )
 
-ALTER TABLE notes_data
-ADD COLUMN createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 CREATE TABLE summary_data(
     id VARCHAR(100) PRIMARY KEY,

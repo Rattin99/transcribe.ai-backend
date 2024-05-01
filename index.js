@@ -123,7 +123,7 @@ app.post("/summary", async (req,res) => {
     })
     const mainSummary = completion.choices[0].message.content;
     const arr = S(mainSummary).lines()
-    //await transcribeService.insertSummary(meetingId, mainSummary);
+    await transcribeService.insertSummary(meetingId, arr);
     res.status(200).json({
         success: true,
         message: 'Successfully created',
@@ -149,8 +149,9 @@ app.post("/notes", async (req,res) => {
         model: "gpt-3.5-turbo",
     })
     const mainNotes = completion.choices[0].message.content
-    // await transcribeService.insertNotes(meetingId, mainNotes);
+     
     const arr = S(mainNotes).lines()
+    await transcribeService.insertNotes(meetingId, arr);
     res.status(200).json({
         success:true,
         message: "Successfully created",

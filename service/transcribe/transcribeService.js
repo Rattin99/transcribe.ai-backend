@@ -80,7 +80,7 @@ const insertSummary = async (id, summary) => {
       // If the meeting ID exists, update the notes field
       const [results] = await pool.execute(
         `UPDATE summary_data SET summary = ? WHERE meeting_id = ?`,
-        [notes, id]
+        [summary, id]
       );
       return results;
     }else{
@@ -95,7 +95,7 @@ const insertSummary = async (id, summary) => {
   }
   } catch (error) {
     console.log(error.message);
-    throw new Error("Internal error");
+    throw new Error(error.message);
   }
 };
 const getAllData = async (req, res) => {
@@ -124,28 +124,40 @@ const getSingleData = async (req, id) => {
 
     // Retrieve the specific user meeting based on the provided id
     const [userMeetingRow] = await pool.query('SELECT * FROM user_meetings WHERE id = ? AND user_id = ?', [id, userId]);
-
     if (!userMeetingRow.length) {
       throw new Error("User meeting not found");
     }
-
     // Retrieve corresponding transcribe, summary, and notes data for the user meeting
     const [transcribeDataRows] = await pool.query('SELECT * FROM transcribe_data WHERE meeting_id = ? ORDER BY uid ASC', [id]);
     const [summaryDataRows] = await pool.query('SELECT * FROM summary_data WHERE meeting_id = ? ORDER BY uid ASC', [id]);
     const [notesDataRows] = await pool.query('SELECT * FROM notes_data WHERE meeting_id = ? ORDER BY uid ASC', [id]);
 
+    // Replace \n characters with <br> tags in the notes data
+    const formattedNotesDataRows = notesDataRows.map(row => {
+      return {
+        ...row,
+        notes: JSON.parse(row.notes.replace(/\n/g, '<br>'))
+      };
+    });
+    const formattedSummaryDataRows = summaryDataRows.map(row => {
+      return {
+        ...row,
+        summary: JSON.parse(row.summary.replace(/\n/g, '<br>'))
+      };
+    });
+
     // Construct the result object
     const userData = {
       meetingName: userMeetingRow[0].meeting_name,
       transcribeData: transcribeDataRows,
-      summaryData: summaryDataRows,
-      notesData: notesDataRows
+      summaryData: formattedSummaryDataRows,
+      notesData: formattedNotesDataRows
     };
 
     return userData;
   } catch (error) {
     console.error("Error retrieving data:", error);
-    throw new Error("Internal server error");
+    throw new Error(error.message);
   }
 };
 const updateMeetingName = async (meetingId, newMeetingName,req) => {
@@ -162,6 +174,34 @@ const updateMeetingName = async (meetingId, newMeetingName,req) => {
     throw new Error("Internal server error");
   }
 };
+const deleteMeetingAndRelatedData = async (meetingId, userId) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // Delete data from transcribe_data table
+    await pool.query('DELETE FROM transcribe_data WHERE meeting_id = ?', [meetingId]);
+
+    // Delete data from summary_data table
+    await pool.query('DELETE FROM summary_data WHERE meeting_id = ?', [meetingId]);
+
+    // Delete data from notes_data table
+    await pool.query('DELETE FROM notes_data WHERE meeting_id = ?', [meetingId]);
+
+    // Delete meeting from user_meetings table
+    const [meetingDeleteResult] = await pool.query('DELETE FROM user_meetings WHERE id = ? AND user_id = ?', [meetingId, userId]);
+
+    // Commit the transaction if all deletions were successful
+    await connection.commit();
+
+    return meetingDeleteResult;
+  } catch (error) {
+    // Rollback the transaction if any error occurs
+    await connection.rollback();
+    console.error("Error deleting meeting and related data:", error);
+    throw new Error("Internal server error");
+  }
+};
 export const transcribeService = {
   insertTranscribe,
   insertNotes,
@@ -169,5 +209,6 @@ export const transcribeService = {
   getAllData,
   insertMeetings ,
   getSingleData,
-  updateMeetingName
+  updateMeetingName,
+  deleteMeetingAndRelatedData
 };
