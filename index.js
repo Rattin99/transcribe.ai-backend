@@ -10,7 +10,6 @@ import bodyParser from 'body-parser';
 import { userRoutes } from "./service/AuthService/user/userRoute";
 import { transcribeRoutes } from "./service/transcribe/transcribeRoute";
 import authenticateToken from "./service/AuthService/authmiddleware";
-import { transcribeService } from "./service/transcribe/transCribeService";
 import moment from "moment/moment";
 import { transcribeService } from "./service/transcribe/transCribeService";
 const S = require('string');
