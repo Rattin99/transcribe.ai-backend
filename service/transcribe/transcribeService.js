@@ -149,6 +149,7 @@ const getSingleData = async (req, id) => {
     // Construct the result object
     const userData = {
       meetingName: userMeetingRow[0].meeting_name,
+      created_at:userMeetingRow[0].dateTime,
       transcribeData: transcribeDataRows,
       summaryData: formattedSummaryDataRows,
       notesData: formattedNotesDataRows
@@ -202,6 +203,47 @@ const deleteMeetingAndRelatedData = async (meetingId, userId) => {
     throw new Error("Internal server error");
   }
 };
+const getSingleDataFree = async (id) => {
+  try {
+    // Retrieve the specific user meeting based on the provided id
+    const [userMeetingRow] = await pool.query('SELECT * FROM user_meetings WHERE id = ?', [id]);
+    if (!userMeetingRow.length) {
+      throw new Error("User meeting not found");
+    }
+    // Retrieve corresponding transcribe, summary, and notes data for the user meeting
+    const [transcribeDataRows] = await pool.query('SELECT * FROM transcribe_data WHERE meeting_id = ? ORDER BY uid ASC', [id]);
+    const [summaryDataRows] = await pool.query('SELECT * FROM summary_data WHERE meeting_id = ? ORDER BY uid ASC', [id]);
+    const [notesDataRows] = await pool.query('SELECT * FROM notes_data WHERE meeting_id = ? ORDER BY uid ASC', [id]);
+
+    // Replace \n characters with <br> tags in the notes data
+    const formattedNotesDataRows = notesDataRows.map(row => {
+      return {
+        ...row,
+        notes: JSON.parse(row.notes.replace(/\n/g, '<br>'))
+      };
+    });
+    const formattedSummaryDataRows = summaryDataRows.map(row => {
+      return {
+        ...row,
+        summary: JSON.parse(row.summary.replace(/\n/g, '<br>'))
+      };
+    });
+
+    // Construct the result object
+    const userData = {
+      meetingName: userMeetingRow[0].meeting_name,
+      created_at:userMeetingRow[0].dateTime,
+      transcribeData: transcribeDataRows,
+      summaryData: formattedSummaryDataRows,
+      notesData: formattedNotesDataRows
+    };
+
+    return userData;
+  } catch (error) {
+    console.error("Error retrieving data:", error);
+    throw new Error(error.message);
+  }
+};
 export const transcribeService = {
   insertTranscribe,
   insertNotes,
@@ -210,5 +252,6 @@ export const transcribeService = {
   insertMeetings ,
   getSingleData,
   updateMeetingName,
-  deleteMeetingAndRelatedData
+  deleteMeetingAndRelatedData,
+  getSingleDataFree
 };

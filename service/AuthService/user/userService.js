@@ -30,7 +30,7 @@ const createUser = async (firstName,lastName,email, password, phone) => {
       }
       const id=generateUUID()
       const values=[id,firstName,lastName,email, hashedPassword, phone]
-      console.log(values)
+   
       const [results] = await pool.execute(
         `INSERT INTO user (id,first_name,last_name, email, password, phone) VALUES (?,?,?,?,?,?)`,
         values
@@ -43,6 +43,7 @@ const createUser = async (firstName,lastName,email, password, phone) => {
   
       return {
         email: email,
+        userName:firstName + ' ' +lastName ,
         message: 'Account created successfully',
         token: token
       };
@@ -68,7 +69,30 @@ const getUserByEmail = async email => {
     throw error;
   }
 };
+
+const getUserProfile = async (req) => {
+  try {
+    const userId=req.user.id;
+    const [rows] = await pool.execute(
+      'SELECT * FROM user WHERE id = ?',
+      [userId]
+    );
+    
+    const user = rows[0];
+
+    return {
+      id: user.id,
+      userName: `${user.first_name} ${user.last_name}`,
+      email:user.email,
+      phone:user.phone,
+      created_at:user.created_at
+    };
+  } catch (error) {
+    throw error;
+  }
+};
   export const userService = {
     createUser,
-    getUserByEmail
+    getUserByEmail,
+    getUserProfile
   }

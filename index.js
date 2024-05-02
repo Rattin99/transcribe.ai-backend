@@ -11,6 +11,7 @@ import { userRoutes } from "./service/AuthService/user/userRoute";
 import { transcribeRoutes } from "./service/transcribe/transcribeRoute";
 import authenticateToken from "./service/AuthService/authmiddleware";
 import moment from "moment/moment";
+import { transcribeService } from "./service/transcribe/transCribeService";
 const S = require('string');
 app.use(express.json());
 app.use(cors());

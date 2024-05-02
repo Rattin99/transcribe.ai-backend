@@ -72,9 +72,26 @@ const deleteMeetingController = async (req, res) => {
     });
   }
 };
+const getSingleDataFree = async (req, res) => {
+  try {
+    const id=req.params.id;
+    const result = await transcribeService.getSingleDataFree(id);
+    res.status(httpStatus.OK).json({
+      success: true,
+      message: "Retireve single data successfully.",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
 export const transcribeController = {
   getAllData,
   getSingleDataController,
   updateUserMeetingController,
-  deleteMeetingController
+  deleteMeetingController,
+  getSingleDataFree
 };

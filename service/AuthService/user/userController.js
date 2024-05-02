@@ -66,6 +66,7 @@ const createUser = async (req, res) => {
         message: 'Login successful',
         id: user.id,
         email: user.email,
+        userName: user.first_name + ' ' + user.last_name,
         token,
       });
     } catch (error) {
@@ -75,7 +76,25 @@ const createUser = async (req, res) => {
       });
     }
   };
+
+const getProfile=async (req, res) => {
+  try{
+      const result =await userService.getUserProfile(req);
+      res.status(httpStatus.OK).json({
+        success: true,
+        message: "Retireve profile data successfully.",
+        data: result,
+      });
+  }
+  catch (error){
+  res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}
   export const userController ={
     createUser,
-    login
+    login,
+    getProfile
   }
