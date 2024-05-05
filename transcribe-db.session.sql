@@ -1,4 +1,4 @@
--- Active: 1714238604527@@sql6.freesqldatabase.com@3306@sql6702423
+-- Active: 1714922665604@@sql6.freesqldatabase.com@3306@sql6704225
 
 
 CREATE TABLE user(

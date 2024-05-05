@@ -27,6 +27,20 @@
             "database": "sql6702423",
             "username": "sql6702423",
             "password": "VQyiBeRKKj"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "sql6.freesqldatabase.com",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "live-db-2",
+            "database": "sql6704225",
+            "username": "sql6704225",
+            "password": "WcCquLMmeD"
         }
     ]
 }

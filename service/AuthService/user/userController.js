@@ -70,7 +70,7 @@ const createUser = async (req, res) => {
         token,
       });
     } catch (error) {
-      console.log('Error during login:', error);
+      ('Error during login:', error);
       res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
         error: 'An error occurred during login',
       });
