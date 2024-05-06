@@ -63,7 +63,7 @@ async function transcribe(req, filePath, res) {
             created_at:moment().format('YYYY-MM-DD HH:mm')
         });
     } catch (error) {
-        console.error("Error during transcription:", error);
+        console.log("Error during transcription:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 }

@@ -10,8 +10,6 @@ CREATE TABLE user(
     phone INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
-
-
 CREATE TABLE transcribe_data(
     id VARCHAR(100) PRIMARY KEY,
     uid int AUTO_INCREMENT UNIQUE,
@@ -33,7 +31,6 @@ CREATE TABLE notes_data(
     meeting_id VARCHAR(100),
     Foreign Key (meeting_id) REFERENCES user_meetings(id) ON UPDATE CASCADE ON DELETE SET NULL
 )
-
 
 CREATE TABLE summary_data(
     id VARCHAR(100) PRIMARY KEY,

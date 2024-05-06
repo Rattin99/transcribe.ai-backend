@@ -14,14 +14,14 @@ const insertMeetings = async (req) => {
       const formattedMeetingName = `${meetingName}`;
       
       const values = [id,userId, formattedMeetingName,currentDate];
-      (values)
+      console.log(values)
       const [results] = await pool.execute(
         `INSERT INTO user_meetings(id,user_id,meeting_name,dateTime) VALUES (?,?,?,?)`,
         values
       );
       return id;
     } catch (error) {
-      (error.message);
+      console.log(error.message);
       throw new Error("Internal error");
     }
 };
@@ -30,7 +30,7 @@ const insertTranscribe = async (id, transcribe) => {
     const meetingId = id
     const mainId=generateUUID()
     const values = [mainId,meetingId, transcribe];
-    (values)
+
     const [results] = await pool.execute(
       `INSERT INTO transcribe_data (id,meeting_id,transcribe) VALUES (?,?,?)`,
       values
@@ -41,7 +41,7 @@ const insertTranscribe = async (id, transcribe) => {
     data:results.insertId
     }
   } catch (error) {
-    (error.message);
+    console.log(error.message);
     throw new Error("Internal error");
   }
 };
@@ -68,7 +68,7 @@ const insertNotes = async (id, notes) => {
       return results;
     }
   } catch (error) {
-    (error.message);
+    console.error(error.message);
     throw new Error("Internal error");
   }
 };
@@ -94,7 +94,7 @@ const insertSummary = async (id, summary) => {
     return results;
   }
   } catch (error) {
-    (error.message);
+    console.error(error.message);
     throw new Error(error.message);
   }
 };
@@ -114,7 +114,6 @@ const getAllData = async (req, res) => {
    })
    return result;
   } catch (error) {
-
    throw new Error ("Internal server error");
   }
 };
@@ -171,7 +170,7 @@ const updateMeetingName = async (meetingId, newMeetingName,req) => {
     );
     return results;
   } catch (error) {
-    (error.message);
+    console.error(error.message);
     throw new Error("Internal server error");
   }
 };

@@ -5,7 +5,7 @@ const connection = {
   password: 'WcCquLMmeD',
   database: 'sql6704225',
 };
-(connection)
+console.log(connection)
   const pool = mysql.createPool(connection);
 
 
