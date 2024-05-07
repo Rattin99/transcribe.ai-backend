@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const openai = new OpenAI({
-    apiKey: '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'
+    apiKey: process.env.OPENAI_API_KEY
 });
 
 // async function transcribe(req,filePath,res) {
